@@ -3,10 +3,10 @@
 //Объявление класса DataBase
 class DataBase
 {
-    const DB = 'lenta';
-    const HOST = 'localhost';
-    const USER = 'root';
-    const PASSWORD = '';
+    const DB = 'heroku_9daea7154993846';
+    const HOST = 'eu-cdbr-west-01.cleardb.com';
+    const USER = 'b0a8caf41a30f5';
+    const PASSWORD = 'bd0e6d2e';
     const CHARSET = 'utf8';
 
     //Соединение с БД

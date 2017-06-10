@@ -91,15 +91,6 @@ class NewsController
         foreach ($lastNews as $news)
             $lastNewsPubDate = $news['pubDate'];
 
-
-        $fp = fopen("file.txt", "w");
-
-        // записываем в файл текст
-        fwrite($fp, 'hello');
-
-        // закрываем
-        fclose($fp);
-
         //Цикл для обхода всей RSS ленты
         foreach ($rss->channel->item as $item) {
 
