@@ -1,7 +1,7 @@
 <?php
-require_once('/../database/db.php');
-require_once('/../model/news.php');
-require_once('/../simple_html_dom.php');
+require_once('database/db.php');
+require_once('model/news.php');
+require_once('simple_html_dom.php');
 
 class NewsController
 {

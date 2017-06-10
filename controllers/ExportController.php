@@ -1,6 +1,6 @@
 <?php
-require_once('/../database/db.php');
-require_once('/../model/news.php');
+require_once('database/db.php');
+require_once('model/news.php');
 
 class ExportController
 {

@@ -6,7 +6,7 @@
 
             <?php
 
-            require_once('/../model/news.php');
+            require_once('model/news.php');
 
             $id = $_GET['id'];
 
@@ -34,7 +34,7 @@
             <ol class="list-unstyled">
                 <?php
 
-                require_once('/../controllers/NewsController.php');
+                require_once('controllers/NewsController.php');
 
                 $controller = new NewsController();
                 $newsList = $controller->actionSelectNews(10, $news->category);
