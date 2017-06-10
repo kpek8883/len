@@ -5,24 +5,30 @@ require_once('/../simple_html_dom.php');
 
 class NewsController
 {
+    //Функция получения новостей из БД. Требуется задать колличество получаемых новостей, а так же можно зделать выборку по категории новости
     public function actionSelectNews($limit, $category = null)
     {
+        //Соединяемся с БД
         $pdo = DataBase::Connection();
+
+        //Формируем SQL запрос
         $sql = "SELECT * FROM news";
         if ($category != null)
             $sql .= " WHERE `category` = '$category'";
 
         $sql .= " ORDER BY `pubDate` DESC LIMIT $limit";
 
+        //Осущетсвляем запрос к БД
         $stmt = $pdo->query($sql);
 
+        //Записываем полученные данные в массив массивов, где подмассивы - новости.
         $news = array();
         if (count($stmt)) {
             while ($row = $stmt->fetch()) {
                 $output['id'] = $row['id'];
                 $output['title'] = $row['title'];
                 $output['text'] = $row['text'];
-                $output['pubDate'] = date('H:i:s d.m.Y', $row['pubDate']);
+                $output['pubDate'] = $row['pubDate'];
                 $output['link'] = $row['link'];
                 $output['category'] = $row['category'];
                 $output['imageURL'] = $row['imageURL'];
@@ -32,29 +38,30 @@ class NewsController
         return $news;
     }
 
-    public function actionParser($url, $newsNumber)
+    //Функция добавления новостей в БД при первом преходе на страницу списка новостей (index.php)
+    public function actionFirstAddNews($url, $newsNumber)
     {
-        $rss = simplexml_load_file($url);       //Интерпретирует XML-файл в объект
-        $count = 0; //счётчик отображаеммых новостей
+        $rss = simplexml_load_file($url);       //интерпретирует XML-файл в объект
+        $count = 0;                             //счётчик обработанных новостей
 
-        //цикл для обхода всей RSS ленты
+        //Цикл для обхода всей RSS ленты
         foreach ($rss->channel->item as $item) {
 
+            // Парсим страницу навостей, с которой необходимо получить текст статьи
             $content = simplehtmldom_1_5\file_get_html($item->link); // Создаем объект DOM на основе кода, полученного по ссылке на страницу новости
 
-            // находим все элеметы <р> html страницы новости
             $text = '';
-            foreach ($content->find('p') as $paragraph){
-                if (substr($paragraph, 0, 3) != '<p>')
+            foreach ($content->find('p') as $paragraph) {       // находим все элеметы <р> html страницы новости
+                if (substr($paragraph, 0, 3) != '<p>')    //проверяем, что был найтен именно элемент <p> без атрибутов
                     continue;
-                $text .= $paragraph;
+                $text .= $paragraph;                                    // записываем абзацы в переменную $text
             }
 
-            //объявляем экземпляр класса News, задаём ему поля
+            //Объявляем экземпляр класса News, задаём ему поля
             $news = new News();
 
             $news->title = $item->title;
-            $news->pubDate = $item->pubDate;
+            $news->pubDate = strtotime($item->pubDate);
             $news->link = $item->link;
             $news->category = $item->category;
             $news->text = $text;
@@ -64,10 +71,71 @@ class NewsController
             //Добавляем данные в БД
             $news->insertNews();
 
-            //останавливаем цикл после 50-ой спарсеной новости
+            //Оостанавливаем парсинг после того, как спарсели newsNumber новости
             $count++;
             if ($count >= $newsNumber)
                 break;
+        }
+    }
+
+    //Функция добавления последних новостей
+    public function actionAddLastNews($url)
+    {
+        $rss = simplexml_load_file($url);       //Интерпретирует XML-файл в объект
+
+        //Получаем из БД последнюю новость
+        $lastNews = $this->actionSelectNews(1);
+
+        //Извлекаем время публикации последней новости, хранаящейся в БД
+        $lastNewsPubDate = '';
+        foreach ($lastNews as $news)
+            $lastNewsPubDate = $news['pubDate'];
+
+
+        $fp = fopen("file.txt", "w");
+
+        // записываем в файл текст
+        fwrite($fp, 'hello');
+
+        // закрываем
+        fclose($fp);
+
+        //Цикл для обхода всей RSS ленты
+        foreach ($rss->channel->item as $item) {
+
+            //Проверяем, что обрабатываемая новость была опубликованна не раньше последней новости из БД
+            if (strtotime($item->pubDate) <= $lastNewsPubDate)
+                break;
+
+            //Т.к. экспортировать можно только новости за сутки,
+            //то и добавлять в базу необходимо новости только за последние 24 часа.
+            //Проверяем, что новость добавлена за последние 24 часа
+            if (strtotime($item->pubDate) <= (time() - 86400))
+                break;
+
+            // Парсим страницу навостей, с которой необходимо получить текст статьи
+            $content = simplehtmldom_1_5\file_get_html($item->link); // Создаем объект DOM на основе кода, полученного по ссылке на страницу новости
+
+            $text = '';
+            foreach ($content->find('p') as $paragraph){       // находим все элеметы <р> html страницы новости
+                if (substr($paragraph, 0, 3) != '<p>')    //проверяем, что был найтен именно элемент <p> без атрибутов
+                    continue;
+                $text .= $paragraph;                                    // записываем абзацы в переменную $text
+            }
+
+            //объявляем экземпляр класса News, задаём ему поля
+            $news = new News();
+
+            $news->title = $item->title;
+            $news->pubDate = strtotime($item->pubDate);
+            $news->link = $item->link;
+            $news->category = $item->category;
+            $news->text = $text;
+            if (isset($item->enclosure))
+                $news->imageURL = $item->enclosure->attributes()->url;
+
+            //Добавляем данные в БД
+            $news->insertNews();
         }
     }
 }

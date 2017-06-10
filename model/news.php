@@ -20,7 +20,7 @@ class News
         $stmt->execute(array(
             "title" => $this->title,
             "text" => $this->text,
-            "pubDate" => strtotime($this->pubDate),
+            "pubDate" => $this->pubDate,
             "link" => $this->link,
             "category" => $this->category,
             "imageURL" => $this->imageURL,
