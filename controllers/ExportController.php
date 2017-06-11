@@ -17,9 +17,6 @@ class ExportController
         //Осущетсвляем запрос к БД
         $stmt = $pdo->query($sql);
 
-        //Делаем заготовку файла:
-        $textFile = "Название статьи; Дата публикации; Оригинальная ссылка \n";
-
         //Записываем полученные данные в переменную $textFile.
         $textFile = '';
         while ($news = $stmt->fetch()) {
