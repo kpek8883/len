@@ -41,6 +41,9 @@ class NewsController
     //Функция добавления новостей в БД при первом преходе на страницу списка новостей (index.php)
     public function actionFirstAddNews($url, $newsNumber)
     {
+        //Задаём времени на выполнение скрипта
+        set_time_limit(120);
+
         $rss = simplexml_load_file($url);       //интерпретируем XML-файл в объект
         $count = 0;                             //счётчик обработанных новостей
 
@@ -81,6 +84,9 @@ class NewsController
     //Функция добавления последних новостей
     public function actionAddLastNews($url)
     {
+        //Задаём времени на выполнение скрипта
+        set_time_limit(120);
+
         $rss = simplexml_load_file($url);       //Интерпретирует XML-файл в объект
 
         //Получаем из БД последнюю новость
