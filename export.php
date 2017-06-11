@@ -3,6 +3,9 @@
 header ( "Content-type: application/msexcel; charset=utf-8" );
 header ( "Content-Disposition: inline; filename=lastNews.csv");
 
+//Устанавливаем временную зону Europe/Moscow
+date_default_timezone_set( 'Europe/Moscow' );
+
 require_once('controllers/ExportController.php');
 
 //Создаём экземпляр класса ExportController и экспортируем новости в csv-файл

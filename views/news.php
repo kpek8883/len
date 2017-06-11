@@ -42,6 +42,9 @@
             <ol class="list-unstyled">
                 <?php
 
+                //Устанавливаем временную зону Europe/Moscow
+                date_default_timezone_set( 'Europe/Moscow' );
+
                 require_once('controllers/NewsController.php');
 
                 //Создаём объект класса NewsController

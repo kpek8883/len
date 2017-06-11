@@ -31,4 +31,6 @@ HTML стилизация - Bootstrap http://getbootstrap.com/ :
 >PRIMARY KEY (`id`)
 
 ***
+Ознакомиться со скриптом можно по ссылке: https://lenta.herokuapp.com/
+
 Автор: Дмитрий Гольдберг - E-mail: dmitriy.goldberg@gmail.com

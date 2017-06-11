@@ -3,6 +3,9 @@
 //Возвращаемся на index.php
 header ("Location: index.php");
 
+//Устанавливаем временную зону Europe/Moscow
+date_default_timezone_set( 'Europe/Moscow' );
+
 require_once('controllers/NewsController.php');
 
 $link = 'https://lenta.ru/rss';
