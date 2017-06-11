@@ -6,6 +6,9 @@
 
             <?php
 
+            //Устанавливаем временную зону Europe/Moscow
+            date_default_timezone_set( 'Europe/Moscow' );
+
             require_once('model/news.php');
 
             $id = $_GET['id'];
@@ -41,9 +44,6 @@
             <h4>Рекомендуем посмотреть:</h4>
             <ol class="list-unstyled">
                 <?php
-
-                //Устанавливаем временную зону Europe/Moscow
-                date_default_timezone_set( 'Europe/Moscow' );
 
                 require_once('controllers/NewsController.php');
 
