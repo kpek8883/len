@@ -10,6 +10,7 @@
             date_default_timezone_set( 'Europe/Moscow' );
 
             require_once('model/news.php');
+            require_once('controllers/NewsController.php');
 
             $id = $_GET['id'];
 
@@ -17,6 +18,16 @@
             $news = new News();
             //Выполняем метод selectNews, извлекающий из БД новость с индексом id и определяющий поля объекта
             $news->selectNews($id);
+
+            //Проверяем на наличие в БД текста статьи
+            if (empty($news->text))
+            {
+                //Если текста нет - создаём объект NewsController, вызываем метод  actionTakeNewsText
+                //которые парсит страницу новостей по передваемой ссылке вы возвращает тектс
+                $controller = new NewsController();
+                $news->text = $controller->actionTakeNewsText($news->link);                     //Опретеляем поле text объекта $news
+                $controller->actionAddNewsTextToDB($news->text, $id);                           //PЗаписываем в БД текст статьи
+            }
 
             //Выводим на печать новость, "заворачивая" поля в контейнеры
             $output = '<h2 class="blog-post-title">'.$news->title.'</h2>';                      //выводим название статиь

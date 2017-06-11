@@ -41,40 +41,27 @@ class NewsController
     //Функция добавления новостей в БД при первом преходе на страницу списка новостей (index.php)
     public function actionFirstAddNews($url, $newsNumber)
     {
-        //Задаём времени на выполнение скрипта
-        set_time_limit(120);
-
         $rss = simplexml_load_file($url);       //интерпретируем XML-файл в объект
         $count = 0;                             //счётчик обработанных новостей
 
         //Цикл для обхода всей RSS ленты
         foreach ($rss->channel->item as $item) {
 
-            // Парсим страницу навостей, с которой необходимо получить текст статьи
-            $content = simplehtmldom_1_5\file_get_html($item->link); // Создаем объект DOM на основе кода, полученного по ссылке на страницу новости
-
-            $text = '';
-            foreach ($content->find('p') as $paragraph) {       // находим все элеметы <р> html страницы новости
-                if (substr($paragraph, 0, 3) != '<p>')    //проверяем, что был найтен именно элемент <p> без атрибутов
-                    continue;
-                $text .= $paragraph;                                    // записываем абзацы в переменную $text
-            }
-
             //Объявляем экземпляр класса News, задаём ему поля
             $news = new News();
 
+            //определяем поля
             $news->title = $item->title;
             $news->pubDate = strtotime($item->pubDate);
             $news->link = $item->link;
             $news->category = $item->category;
-            $news->text = $text;
             if (isset($item->enclosure))
                 $news->imageURL = $item->enclosure->attributes()->url;
 
             //Добавляем данные в БД
             $news->insertNews();
 
-            //Оостанавливаем парсинг после того, как спарсели newsNumber новости
+            //Останавливаем парсинг после того, как спарсели newsNumber новости
             $count++;
             if ($count >= $newsNumber)
                 break;
@@ -84,9 +71,6 @@ class NewsController
     //Функция добавления последних новостей
     public function actionAddLastNews($url)
     {
-        //Задаём времени на выполнение скрипта
-        set_time_limit(120);
-
         $rss = simplexml_load_file($url);       //Интерпретирует XML-файл в объект
 
         //Получаем из БД последнюю новость
@@ -110,29 +94,45 @@ class NewsController
             if (strtotime($item->pubDate) <= (time() - 86400))
                 break;
 
-            // Парсим страницу навостей, с которой необходимо получить текст статьи
-            $content = simplehtmldom_1_5\file_get_html($item->link); // Создаем объект DOM на основе кода, полученного по ссылке на страницу новости
-
-            $text = '';
-            foreach ($content->find('p') as $paragraph){       // находим все элеметы <р> html страницы новости
-                if (substr($paragraph, 0, 3) != '<p>')    //проверяем, что был найтен именно элемент <p> без атрибутов
-                    continue;
-                $text .= $paragraph;                                    // записываем абзацы в переменную $text
-            }
-
             //объявляем экземпляр класса News, задаём ему поля
             $news = new News();
 
+            //Определяем поля
             $news->title = $item->title;
             $news->pubDate = strtotime($item->pubDate);
             $news->link = $item->link;
             $news->category = $item->category;
-            $news->text = $text;
             if (isset($item->enclosure))
                 $news->imageURL = $item->enclosure->attributes()->url;
 
             //Добавляем данные в БД
             $news->insertNews();
         }
+    }
+
+    //Функция получения текста статьи
+    public function actionTakeNewsText($link)
+    {
+        // Парсим страницу навостей, с которой необходимо получить текст статьи
+        $content = simplehtmldom_1_5\file_get_html($link);      // Создаем объект DOM на основе кода, полученного по ссылке на страницу новости
+
+        $text = '';
+        foreach ($content->find('p') as $paragraph) {       // находим все элеметы <р> html страницы новости
+            if (substr($paragraph, 0, 3) != '<p>')     //проверяем, что был найтен именно элемент <p> без атрибутов
+                continue;
+            $text .= $paragraph;                                    // записываем абзацы в переменную $text
+        }
+
+        return $text;
+    }
+
+    //Функция добавления текста статьи в БД
+    public function actionAddNewsTextToDB($text, $id)
+    {
+        $pdo = DataBase::Connection();
+        $stmt = $pdo->prepare("UPDATE news SET `text` = :text WHERE `id` = :id");
+        $stmt->bindValue(":text", $text);
+        $stmt->bindValue(":id", $id);
+        $stmt->execute();
     }
 }
