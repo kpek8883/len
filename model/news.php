@@ -27,7 +27,7 @@ class News
         ));
     }
 
-    //Извлечение новости из БД
+    //Извлечение новости из БД и определение полей текущего объекта класса
     public function selectNews($id)
     {
         $pdo = DataBase::Connection();

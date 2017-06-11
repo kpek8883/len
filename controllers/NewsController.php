@@ -41,7 +41,7 @@ class NewsController
     //Функция добавления новостей в БД при первом преходе на страницу списка новостей (index.php)
     public function actionFirstAddNews($url, $newsNumber)
     {
-        $rss = simplexml_load_file($url);       //интерпретирует XML-файл в объект
+        $rss = simplexml_load_file($url);       //интерпретируем XML-файл в объект
         $count = 0;                             //счётчик обработанных новостей
 
         //Цикл для обхода всей RSS ленты

@@ -9,7 +9,7 @@ require_once('controllers/ExportController.php');
 $controller = new ExportController();
 $fileText = $controller->actionExport();
 
-//Преобразовываем $fileText в кодировку windows-1251 для корректного отображения русского текста в MS Excel
+//Преобразовываем $fileText в кодировку windows-1251 для корректного отображения русского текста в Windows MS Excel
 $fileText = iconv('utf-8', 'windows-1251', $fileText);
 
 echo $fileText;
